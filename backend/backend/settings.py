@@ -4,6 +4,7 @@ Django settings for the pharma-style company site backend.
 import os
 from pathlib import Path
 from decouple import config, Csv
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -19,7 +20,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "cloudinary_storage",
     "django.contrib.staticfiles",
+    "cloudinary",
     "rest_framework",
     "corsheaders",
     "core",
@@ -57,12 +60,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+DATABASE_URL = config("DATABASE_URL", default="")
+
+if DATABASE_URL:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
@@ -78,10 +92,23 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+
+# Cloudinary config — production-safe media storage (persists across deploys)
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": config("CLOUDINARY_API_KEY"),
+    "API_SECRET": config("CLOUDINARY_API_SECRET"),
+}
+
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
