@@ -8,5 +8,8 @@ urlpatterns = [
     path("api/", include("core.urls")),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Serve media files in both dev and production.
+# NOTE: Django's static() helper is meant for development, but Render's
+# free tier has no separate web server for /media/, so we keep this
+# active even when DEBUG=False to make uploaded images work.
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
