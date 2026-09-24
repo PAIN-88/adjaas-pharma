@@ -50,6 +50,7 @@ export default function Navbar() {
             <li><Link to="/products" onClick={closeAll}>Our Products</Link></li>
             <li><Link to="/contact" onClick={closeAll}>Contact Us</Link></li>
             <li><Link to="/manage-products" onClick={closeAll}>Manage Products</Link></li>
+            <li><Link to="/manage-categories" onClick={closeAll}>Manage Categories</Link></li>
           </ul>
         </nav>
       </div>
@@ -73,6 +74,7 @@ export default function Navbar() {
           <li><Link to="/products" onClick={closeAll}>Our Products</Link></li>
           <li><Link to="/contact" onClick={closeAll}>Contact Us</Link></li>
           <li><Link to="/manage-products" onClick={closeAll}>Manage Products</Link></li>
+          <li><Link to="/manage-categories" onClick={closeAll}>Manage Categories</Link></li>
         </ul>
       </aside>
     </header>
