@@ -1,36 +1,40 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import Home from "./pages/Home";
-import About from "./pages/About";
-import Products from "./pages/Products";
-import ProductDetail from "./pages/ProductDetail";
-import Contact from "./pages/Contact";
-import ManageProducts from "./pages/ManageProducts";
-import { getCompanyInfo, getCategories } from "./api";
+import axios from "axios";
 
-export default function App() {
-  const [company, setCompany] = useState(null);
-  const [categories, setCategories] = useState([]);
+const api = axios.create({
+  baseURL: process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api",
+});
 
-  useEffect(() => {
-    getCompanyInfo().then((r) => setCompany(r.data)).catch(() => {});
-    getCategories().then((r) => setCategories(r.data)).catch(() => {});
-  }, []);
+export const getCompanyInfo = () => api.get("/company/");
+export const getFeatures = () => api.get("/features/");
+export const getSlides = () => api.get("/slides/");
+export const getCategories = () => api.get("/categories/");
+export const getProducts = (categorySlug) =>
+  api.get("/products/", { params: categorySlug ? { category: categorySlug } : {} });
+export const getProduct = (id) => api.get(`/products/${id}/`);
 
-  return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/manage-products" element={<ManageProducts />} />
-      </Routes>
-      <Footer company={company} categories={categories} />
-    </BrowserRouter>
-  );
-}
+// Category CRUD (admin-key-protected)
+export const createCategory = (payload, secretKey) =>
+  api.post("/categories/", payload, { headers: { "X-Admin-Key": secretKey } });
+
+export const updateCategory = (slug, payload, secretKey) =>
+  api.patch(`/categories/${slug}/`, payload, { headers: { "X-Admin-Key": secretKey } });
+
+export const deleteCategory = (slug, secretKey) =>
+  api.delete(`/categories/${slug}/`, { headers: { "X-Admin-Key": secretKey } });
+
+// Product CRUD (admin-key-protected)
+export const createProduct = (formData, secretKey) =>
+  api.post("/products/", formData, { headers: { "X-Admin-Key": secretKey } });
+
+export const updateProduct = (id, formData, secretKey) =>
+  api.patch(`/products/${id}/`, formData, { headers: { "X-Admin-Key": secretKey } });
+
+export const deleteProduct = (id, secretKey) =>
+  api.delete(`/products/${id}/`, { headers: { "X-Admin-Key": secretKey } });
+
+export const verifyAdminKey = (secretKey) =>
+  api.delete(`/products/0/`, { headers: { "X-Admin-Key": secretKey } });
+
+export const submitContact = (payload) => api.post("/contact/", payload);
+
+export default api;
