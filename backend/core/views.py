@@ -11,10 +11,13 @@ from .serializers import (
 from .permissions import HasAdminSecretKey
 
 
-class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
+class CategoryViewSet(viewsets.ModelViewSet):
+    """Full CRUD. Reading is open to everyone; creating/editing/deleting a
+    category requires the 'X-Admin-Key' header to match ADMIN_SECRET_KEY."""
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     lookup_field = "slug"
+    permission_classes = [HasAdminSecretKey]
 
 
 class ProductViewSet(viewsets.ModelViewSet):
